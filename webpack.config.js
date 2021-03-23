@@ -32,10 +32,13 @@ module.exports = {
         use: [{
           loader: 'file-loader'
         }],
+      },{
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
       }
     ]
   },
   plugins: [
-    new HtmlWebpackPlugin({'title': 'three-seed project'})
+    new HtmlWebpackPlugin({'title': 'particle-music'})
   ]
 }

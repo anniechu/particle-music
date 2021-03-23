@@ -12,18 +12,36 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
 import Particles from './objects/Particles.js';
-import music from './music/keshi.mp3';
+import music from './music/hakone.mp3';
+import './style.css';
 
 var camera;
-var audio = new Audio(music);
 var analyser;
 var dataArray;
 var played = false;
+var loaded = false;
+var songLabel;
+var audio;
 
-var onClick = function(e) {
+function loadFileObject(fileObj, loadedCallback)
+{
+    var reader = new FileReader();
+    reader.readAsDataURL( fileObj );
+    reader.onload = loadedCallback;
+}
+
+function play(evt) {
   if (played) {
-    return
+    audio.pause()
+  }
+  if (evt) {
+    audio = new Audio(evt.target.result)
+    songLabel.textContent = ''
+    loaded = true;
+  } else {
+    audio = new Audio(music)
   }
   var context = new AudioContext();
   var src = context.createMediaElementSource(audio);
@@ -64,12 +82,23 @@ bloomPass.radius = 0;
 
 const controls = new OrbitControls( camera, renderer.domElement );
 
+const gui = new GUI()
+var params = {
+  loadFile : function() { 
+    document.getElementById('myInput').click();
+  },
+};
+gui.add(params, 'loadFile').name('Load music file');
+
 // render loop
 const onAnimationFrameHandler = (timeStamp) => {
   composer.render();
   if(played) {
     analyser.getByteFrequencyData(dataArray);
     particles.update && particles.update(dataArray);
+  }
+  if (typeof document.getElementById("myInput").files[0] !== 'undefined' && !loaded) {
+    loadFileObject(document.getElementById("myInput").files[0], play)
   }
   window.requestAnimationFrame(onAnimationFrameHandler);
 }
@@ -89,5 +118,13 @@ window.addEventListener('resize', windowResizeHanlder);
 // dom
 document.body.style.margin = 0;
 document.body.appendChild( renderer.domElement );
+var element = document.createElement('input')
+element.type = 'file'
+element.id = 'myInput'
+document.documentElement.appendChild( element )
+songLabel = document.createElement('song')
+songLabel.id = 'song'
+songLabel.textContent = 'Hakone - DREAIR'
+document.documentElement.appendChild( songLabel )
 
-window.addEventListener('click', onClick, false)
+play()

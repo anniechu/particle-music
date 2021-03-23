@@ -7,7 +7,7 @@ var pMaterial;
 var width = 70;
 var height = 50;
 
-export default class Square extends Group {
+export default class Particles extends Group {
   constructor() {
     super();
 
